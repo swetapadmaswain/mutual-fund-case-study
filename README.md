@@ -27,11 +27,17 @@ This project implements a compliant, facts-only FAQ assistant that:
 - Source validation and compliance checking
 - Data processing and storage
 
-### Phase 2: RAG System Implementation (Planned)
-- Document processing and chunking
-- Vector database setup
-- Retrieval system development
-- LLM integration
+### Phase 2.1: Document Processing and Chunking ✅
+- Text preprocessing and cleaning
+- Semantic chunking (500-800 tokens)
+- Metadata enrichment and hierarchical keys
+- Quality validation and compliance checking
+
+### Phase 2: RAG System Implementation (In Progress)
+- Document processing and chunking ✅
+- Vector database setup (Planned)
+- Retrieval system development (Planned)
+- LLM integration (Planned)
 
 ### Phase 3: Query Processing (Planned)
 - Query classification and intent detection
@@ -62,9 +68,9 @@ This project implements a compliant, facts-only FAQ assistant that:
 
 ### Setup
 
-1. **Clone the repository**
+1. **Clone repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/swetapadmaswain/mutual-fund-case-study.git
 cd mutual-fund-case-study
 ```
 
@@ -90,6 +96,11 @@ cp .env.example .env
 python src/data_collection/main.py
 ```
 
+6. **Run Phase 2.1 document processing**
+```bash
+python src/rag/chunking/main.py
+```
+
 ### Phase 1 Usage
 
 The Phase 1 pipeline performs:
@@ -98,40 +109,97 @@ The Phase 1 pipeline performs:
 - **Content Processing**: Extracts and structures financial data
 - **Storage**: Saves processed data in JSON format with metadata
 
+### Phase 2.1 Usage
+
+The Phase 2.1 pipeline performs:
+- **Document Processing**: Cleans and preprocesses text content
+- **Semantic Chunking**: Creates 500-800 token chunks with overlap
+- **Metadata Enrichment**: Adds hierarchical keys and citations
+- **Quality Validation**: Ensures compliance and quality standards
+
 ### Expected Output
 
+#### Phase 1 Output
 ```
 ================================================================================
 PHASE 1 RESULTS: Phase 1 - Foundation and Data Collection
 ================================================================================
-Success: ✅
+Success: 
 Duration: 45.23 seconds
 
-📊 VALIDATION RESULTS:
+ VALIDATION RESULTS:
   Total URLs: 5
   Valid URLs: 5
   Invalid URLs: 0
   SSL Enabled: 5
   Allowed Domains: 5
 
-🌐 COLLECTION RESULTS:
+ COLLECTION RESULTS:
   Total URLs: 5
   Successful Fetches: 5
   Failed Fetches: 0
 
-⚙️ PROCESSING RESULTS:
+ PROCESSING RESULTS:
   Total Documents: 5
   New Documents: 5
   Duplicate Documents: 0
   Processed Documents: 5
   Failed Documents: 0
 
-📈 FINAL SUMMARY:
+ FINAL SUMMARY:
   Total Documents: 5
   Unique Funds: 5
   Last Updated: 2025-01-15T10:30:45
   Avg Content Length: 2456.7 characters
   Funds Processed: 5
+```
+
+#### Phase 2.1 Output
+```
+================================================================================
+PHASE 2.1 RESULTS: Document Processing and Chunking
+================================================================================
+Success: 
+Duration: 45.67 seconds
+
+ STEP RESULTS:
+ DOCUMENT PROCESSING:
+  documents_processed: 5
+  total_words: 12456
+  avg_compression_ratio: 0.85
+  financial_data_extracted: {'expense_ratios': 5, 'sip_amounts': 5}
+  Success: 
+
+ CHUNKING:
+  total_chunks: 23
+  avg_chunk_size: 645.3
+  size_distribution: {'small (< 500)': 3, 'medium (500-800)': 18, 'large (> 800)': 2}
+  context_coverage: 0.87
+  Success: 
+
+ METADATA ENRICHMENT:
+  chunks_enriched: 23
+  avg_quality_score: 0.82
+  content_types: {'expense_ratio': 8, 'nav': 6, 'sip': 5}
+  financial_coverage: 0.91
+  citation_completeness: 1.0
+  Success: 
+
+ VALIDATION:
+  total_validated: 23
+  valid_chunks: 21
+  invalid_chunks: 0
+  warning_chunks: 2
+  avg_score: 0.79
+  validation_rate: 0.91
+  Success: 
+
+ FINAL SUMMARY:
+  Documents Processed: 5
+  Chunks Created: 23
+  Chunks Enriched: 23
+  Average Quality Score: 0.79
+  Validation Rate: 91.30%
 ```
 
 ## 📁 Project Structure
@@ -146,13 +214,21 @@ mutual-fund-case-study/
 │   │   ├── document_loader.py   # Web scraping and content extraction
 │   │   ├── source_validator.py  # Source validation and compliance
 │   │   └── data_processor.py    # Data processing and storage
+│   ├── rag/                      # Phase 2 components
+│   │   └── chunking/           # Phase 2.1 components
+│   │       ├── main.py         # Phase 2.1 pipeline entry point
+│   │       ├── document_processor.py # Text preprocessing and cleaning
+│   │       ├── chunker.py      # Semantic chunking strategy
+│   │       ├── metadata_enricher.py # Metadata enrichment
+│   │       └── chunk_validator.py # Quality validation
 │   └── utils/                    # Utility modules
 │       ├── logger.py            # Logging configuration
 │       ├── exceptions.py        # Custom exceptions
 │       └── monitoring.py        # Monitoring and metrics
 ├── tests/                        # Test files
 │   ├── test_document_loader.py  # Tests for document loading
-│   └── test_source_validator.py # Tests for source validation
+│   ├── test_source_validator.py # Tests for source validation
+│   └── test_chunking.py       # Tests for chunking components
 ├── docs/                         # Documentation
 │   ├── planning/                 # Project planning
 │   ├── architecture/             # System architecture
@@ -211,14 +287,19 @@ pytest -v
 
 ## 📊 Monitoring and Metrics
 
-Phase 1 includes comprehensive monitoring:
-
+### Phase 1 Monitoring
 - **Performance Metrics**: Execution time, success rates, processing speed
 - **Data Quality**: Content length, duplicate detection, validation results
 - **Health Checks**: System health, configuration validation
 - **Export Reports**: JSON reports with detailed metrics
 
-Access metrics in `cache/metrics/phase1_metrics.json`.
+### Phase 2.1 Monitoring
+- **Processing Statistics**: Document processing metrics and compression ratios
+- **Chunking Metrics**: Chunk size distribution and context coverage
+- **Quality Metrics**: Validation scores and compliance rates
+- **Enrichment Stats**: Metadata completeness and quality scores
+
+Access metrics in `cache/metrics/` directories.
 
 ## ⚠️ Compliance Requirements
 
@@ -242,7 +323,7 @@ Access metrics in `cache/metrics/phase1_metrics.json`.
 
 ## 🔍 Data Processing Details
 
-### Extracted Information
+### Phase 1 Extracted Information
 - Fund name and type
 - Expense ratio and exit load
 - Minimum SIP amount
@@ -250,11 +331,12 @@ Access metrics in `cache/metrics/phase1_metrics.json`.
 - Benchmark index and AUM
 - Investment objectives
 
-### Data Quality
-- Content deduplication using hash comparison
-- Structured data extraction and validation
-- Compliance checking for advisory language
-- Personal data detection and filtering
+### Phase 2.1 Processing Features
+- Text cleaning and normalization
+- Semantic chunking with overlap
+- Hierarchical metadata structure
+- Quality scoring and validation
+- Compliance checking and filtering
 
 ## 🐛 Troubleshooting
 
@@ -286,32 +368,42 @@ Enable debug logging:
 
 ```bash
 LOG_LEVEL=DEBUG python src/data_collection/main.py
+LOG_LEVEL=DEBUG python src/rag/chunking/main.py
 ```
 
 ## 📈 Performance
 
 ### Expected Performance
+
+#### Phase 1
 - **Execution Time**: 30-60 seconds for 5 URLs
 - **Success Rate**: >95% for valid URLs
 - **Memory Usage**: <100MB during operation
 - **Storage**: ~10MB for processed data
 
+#### Phase 2.1
+- **Execution Time**: 30-60 seconds for processing
+- **Chunk Generation**: 20-30 chunks per document
+- **Quality Score**: Average >0.7 for good content
+- **Validation Rate**: >90% for processed chunks
+
 ### Optimization Tips
 - Use SSD for faster I/O
 - Ensure stable internet connection
 - Monitor system resources during execution
+- Use appropriate chunk sizes for optimal processing
 
 ## 🤝 Contributing
 
-1. Follow the existing code style (Black formatting)
+1. Follow existing code style (Black formatting)
 2. Write tests for new functionality
 3. Update documentation for changes
 4. Ensure compliance requirements are met
-5. Run the full test suite before submitting
+5. Run full test suite before submitting
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the project documentation for details.
+This project is licensed under MIT License - see project documentation for details.
 
 ## 🆘 Support
 
@@ -323,12 +415,22 @@ For issues and questions:
 
 ## 🔄 Next Steps
 
-After completing Phase 1:
-1. Review collected data quality
-2. Proceed to Phase 2 (RAG System Implementation)
-3. Set up vector database
-4. Implement document chunking and indexing
+### Current Status
+- ✅ Phase 1: Foundation and Data Collection - Complete
+- ✅ Phase 2.1: Document Processing and Chunking - Complete
+- 🔄 Phase 2.2: Vector Store Setup - Next
+- ⏳ Phase 2.3: Retrieval System - Planned
+- ⏳ Phase 2.4: LLM Integration - Planned
+- ⏳ Phase 2.5: Metadata Management - Planned
+- ⏳ Phase 2.6: Performance Optimization - Planned
+
+### After Phase 2.1
+1. Review chunk quality and distribution
+2. Validate metadata completeness
+3. Proceed to Phase 2.2 (Vector Store Setup)
+4. Set up embedding model integration
+5. Configure ChromaDB collections
 
 ---
 
-**Note**: This is Phase 1 of a 6-phase implementation. Current functionality focuses on data collection and processing only.
+**Note**: This is an active 6-phase implementation. Phase 1 and Phase 2.1 are complete and ready for use.
