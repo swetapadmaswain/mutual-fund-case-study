@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutual Fund FAQ Assistant - Groq Powered</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .disclaimer {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+
+        .status {
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .status.ai-powered {
+            background: linear-gradient(45deg, #10b981, #3b82f6);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .status.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .query-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .query-section h2 {
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .query-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .examples-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .examples-section h2 {
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1rem;
+        }
+
+        .example-question {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-question:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        }
+
+        .example-category {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .response-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .response-section h2 {
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .response-content {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .response-answer {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            color: #374151;
+        }
+
+        .response-source {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f3f4f6;
+            border-radius: 0.375rem;
+        }
+
+        .source-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        .response-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .meta-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border-radius: 0.375rem;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .meta-value {
+            color: #6b7280;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .compliance-approved {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .compliance-rejected {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .compliance-medium {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .compliance-high {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .query-history {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .history-item {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #f3f4f6;
+        }
+
+        .history-query {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .history-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .quality-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .quality-ai {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .quality-factual {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .quality-compliance {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .ai-indicator {
+            display: inline-block;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🤖 Mutual Fund FAQ Assistant</h1>
+            <div class="ai-badge">🚀 Powered by Groq AI</div>
+            <div id="status" class="status">
+                Checking AI connection...
+            </div>
+        </header>
+
+        <div class="disclaimer">
+            <strong>⚠️ Important Disclaimer:</strong> This AI-powered assistant provides factual information only and does not give investment advice. 
+            Please consult a qualified financial advisor for investment recommendations.
+        </div>
+
+        <section class="stats-section" id="statsSection" style="display: none;">
+            <h2>📊 AI System Statistics</h2>
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be populated here -->
+            </div>
+        </section>
+
+        <section class="query-section">
+            <h2>🔍 Ask AI Assistant</h2>
+            <input 
+                type="text" 
+                id="queryInput" 
+                class="query-input"
+                placeholder="e.g., What is the expense ratio of HDFC Mid Cap Fund?"
+                onkeypress="if(event.key === 'Enter') submitQuery()"
+            >
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="submitQuery()">🤖 Ask AI</button>
+                <button class="btn btn-secondary" onclick="clearResponse()">🗑️ Clear</button>
+                <button class="btn btn-success" onclick="loadStats()">📊 AI Stats</button>
+                <button class="btn btn-secondary" onclick="clearHistory()">🗑️ Clear History</button>
+            </div>
+        </section>
+
+        <section class="examples-section">
+            <h2>💡 AI Example Questions</h2>
+            <div class="example-grid" id="exampleGrid">
+                <!-- Examples will be populated here -->
+            </div>
+        </section>
+
+        <section class="query-history" id="historySection" style="display: none;">
+            <h2>📜 AI Query History</h2>
+            <div id="historyList">
+                <!-- History items will be populated here -->
+            </div>
+        </section>
+
+        <section class="response-section" id="responseSection" style="display: none;">
+            <h2>🤖 AI Response</h2>
+            <div class="response-content">
+                <div class="response-answer" id="responseAnswer"></div>
+                <div class="response-source" id="responseSource"></div>
+                <div class="response-meta">
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <div class="meta-label">Query Type</div>
+                            <div class="meta-value" id="responseType"></div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">AI Confidence</div>
+                            <div class="meta-value" id="responseConfidence"></div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Response Time</div>
+                            <div class="meta-value" id="responseTime"></div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Compliance</div>
+                            <div class="meta-value" id="responseCompliance"></div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">AI Model</div>
+                            <div class="meta-value" id="aiModel"></div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Response Method</div>
+                            <div class="meta-value" id="responseMethod"></div>
+                        </div>
+                    </div>
+                    <div id="responseDisclaimer"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>🤖 AI Features</h3>
+                    <p>Powered by Groq Llama3-70B with intelligent response generation, compliance enforcement, and factual knowledge integration.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>⚡ Capabilities</h3>
+                    <p>Real-time AI processing, strict compliance enforcement, factual accuracy, and enhanced user experience with AI-powered insights.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>📞 Contact</h3>
+                    <p>For investment advice, please consult a qualified financial advisor. This AI assistant provides factual information only.</p>
+                </div>
+            </div>
+            <p>© 2024 Mutual Fund FAQ Assistant - Groq Powered | Last updated: <span id="lastUpdated"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        let queryHistory = [];
+
+        // Check API health on page load
+        async function checkAPIHealth() {
+            const statusElement = document.getElementById('status');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const aiModel = data.ai_model || 'unknown';
+                    const complianceEnforcement = data.compliance_enforcement || 'unknown';
+                    
+                    statusElement.className = 'status ai-powered';
+                    statusElement.innerHTML = `🤖 ${aiModel} AI is running with ${complianceEnforcement} compliance enforcement`;
+                    return true;
+                } else {
+                    throw new Error('API not responding correctly');
+                }
+            } catch (error) {
+                statusElement.className = 'status error';
+                statusElement.innerHTML = '❌ AI API is not available. Please start the Groq API server.<br><small>Run: python groq_api.py</small>';
+                return false;
+            }
+        }
+
+        // Load example questions
+        async function loadExamples() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/examples`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const examples = data.examples || [];
+                    
+                    const exampleGrid = document.getElementById('exampleGrid');
+                    exampleGrid.innerHTML = '';
+                    
+                    examples.forEach(example => {
+                        const div = document.createElement('div');
+                        div.className = 'example-question';
+                        div.innerHTML = `
+                            <div>🤖 ${example.query}</div>
+                            <div class="example-category">${example.category} - ${example.description}</div>
+                        `;
+                        div.onclick = () => setQuery(example.query);
+                        exampleGrid.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading examples:', error);
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    displayStats(data);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Display statistics
+        function displayStats(data) {
+            const statsSection = document.getElementById('statsSection');
+            const statsGrid = document.getElementById('statsGrid');
+            
+            statsSection.style.display = 'block';
+            
+            const apiStats = data.api_stats || {};
+            const stats = [
+                { label: 'AI Model', value: apiStats.ai_model || 'Unknown' },
+                { label: 'Response Quality', value: apiStats.response_quality || 'Unknown' },
+                { label: 'Compliance', value: apiStats.compliance_enforcement || 'Unknown' },
+                { label: 'Avg Response Time', value: (apiStats.average_response_time || 'Unknown') },
+                { label: 'Query Processing', value: apiStats.query_type_distribution?.factual || 'AI-Enhanced' },
+                { label: 'System Status', value: 'AI-Powered' }
+            ];
+            
+            statsGrid.innerHTML = '';
+            stats.forEach(stat => {
+                const div = document.createElement('div');
+                div.className = 'stat-card';
+                div.innerHTML = `
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                statsGrid.appendChild(div);
+            });
+        }
+
+        // Set query input value
+        function setQuery(query) {
+            document.getElementById('queryInput').value = query;
+        }
+
+        // Submit query to AI API
+        async function submitQuery() {
+            const queryInput = document.getElementById('queryInput');
+            const query = queryInput.value.trim();
+            
+            if (!query) {
+                alert('Please enter a question');
+                return;
+            }
+
+            // Show loading
+            const responseSection = document.getElementById('responseSection');
+            const responseAnswer = document.getElementById('responseAnswer');
+            
+            responseSection.style.display = 'block';
+            responseAnswer.innerHTML = '<div class="loading">🤖 AI is processing your question...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResponse(data);
+                addToHistory(query, data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                responseAnswer.innerHTML = `<div class="error">❌ AI Error: ${error.message}</div>`;
+            }
+        }
+
+        // Display AI response
+        function displayResponse(data) {
+            const responseAnswer = document.getElementById('responseAnswer');
+            const responseSource = document.getElementById('responseSource');
+            const responseType = document.getElementById('responseType');
+            const responseConfidence = document.getElementById('responseConfidence');
+            const responseTime = document.getElementById('responseTime');
+            const responseCompliance = document.getElementById('responseCompliance');
+            const aiModel = document.getElementById('aiModel');
+            const responseMethod = document.getElementById('responseMethod');
+            const responseDisclaimer = document.getElementById('responseDisclaimer');
+
+            // Answer with AI styling
+            responseAnswer.innerHTML = data.answer || 'No answer available.';
+
+            // Source with better styling
+            if (data.source) {
+                responseSource.innerHTML = `
+                    <h3>🔗 Source</h3>
+                    <a href="${data.source}" target="_blank" class="source-link">${data.source_title || 'Official Source'}</a>
+                    ${data.last_updated ? `<br><small>Last updated: ${data.last_updated}</small>` : ''}
+                `;
+            } else {
+                responseSource.innerHTML = '';
+            }
+
+            // Metadata
+            responseType.textContent = data.query_type || 'unknown';
+            responseConfidence.textContent = `${(data.confidence || 0).toFixed(1)}%`;
+            responseTime.textContent = `${(data.response_time || 0).toFixed(2)}s`;
+
+            // AI Model info
+            aiModel.textContent = data.ai_model || 'Unknown';
+            aiModel.innerHTML += `<span class="ai-indicator">AI</span>`;
+
+            // Response method
+            responseMethod.textContent = data.response_method || 'unknown';
+            
+            // Add quality indicator based on response method
+            let qualityClass = 'quality-factual';
+            let qualityText = 'Factual';
+            if (data.response_method === 'groq_generated') {
+                qualityClass = 'quality-ai';
+                qualityText = 'AI Generated';
+            } else if (data.response_method?.includes('compliance')) {
+                qualityClass = 'quality-compliance';
+                qualityText = 'Compliance';
+            }
+            
+            responseMethod.innerHTML += `<span class="quality-indicator ${qualityClass}">${qualityText}</span>`;
+
+            // Compliance with better styling
+            const compliance = data.compliance || {};
+            const approved = compliance.approved || false;
+            const riskLevel = compliance.risk_level || 'unknown';
+            
+            let complianceClass = 'compliance-approved';
+            if (!approved) {
+                complianceClass = 'compliance-rejected';
+            } else if (riskLevel === 'medium') {
+                complianceClass = 'compliance-medium';
+            } else if (riskLevel === 'high') {
+                complianceClass = 'compliance-high';
+            }
+            
+            responseCompliance.innerHTML = `<span class="${complianceClass}">${approved ? '✅' : '❌'} ${approved ? 'Approved' : 'Rejected'} (${riskLevel})</span>`;
+
+            // Disclaimer
+            responseDisclaimer.innerHTML = `<em>Disclaimer: ${data.disclaimer || 'No disclaimer available.'}</em>`;
+        }
+
+        // Add to history
+        function addToHistory(query, response) {
+            const historyItem = {
+                query: query,
+                response: response,
+                timestamp: new Date().toISOString()
+            };
+            
+            queryHistory.unshift(historyItem);
+            if (queryHistory.length > 15) {
+                queryHistory.pop();
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        // Update history display
+        function updateHistoryDisplay() {
+            const historySection = document.getElementById('historySection');
+            const historyList = document.getElementById('historyList');
+            
+            if (queryHistory.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+            
+            historySection.style.display = 'block';
+            historyList.innerHTML = '';
+            
+            queryHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                
+                const responseMethod = item.response.response_method || 'unknown';
+                let qualityClass = 'quality-factual';
+                let qualityText = 'Factual';
+                if (responseMethod === 'groq_generated') {
+                    qualityClass = 'quality-ai';
+                    qualityText = 'AI';
+                } else if (responseMethod?.includes('compliance')) {
+                    qualityClass = 'quality-compliance';
+                    qualityText = 'Compliance';
+                }
+                
+                div.innerHTML = `
+                    <div class="history-query">${item.query}</div>
+                    <div class="history-meta">
+                        Type: ${item.response.query_type} | 
+                        Confidence: ${(item.response.confidence * 100).toFixed(1)}% | 
+                        Time: ${new Date(item.timestamp).toLocaleTimeString()}
+                        <span class="quality-indicator ${qualityClass}">${qualityText}</span>
+                    </div>
+                `;
+                div.onclick = () => {
+                    setQuery(item.query);
+                    displayResponse(item.response);
+                };
+                historyList.appendChild(div);
+            });
+        }
+
+        // Clear response
+        function clearResponse() {
+            document.getElementById('queryInput').value = '';
+            document.getElementById('responseSection').style.display = 'none';
+        }
+
+        // Clear history
+        function clearHistory() {
+            queryHistory = [];
+            updateHistoryDisplay();
+        }
+
+        // Update last updated time
+        function updateLastUpdated() {
+            const now = new Date();
+            const formatted = now.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('lastUpdated').textContent = formatted;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAPIHealth();
+            loadExamples();
+            updateLastUpdated();
+            
+            // Update time every minute
+            setInterval(updateLastUpdated, 60000);
+        });
+    </script>
+</body>
+</html>
