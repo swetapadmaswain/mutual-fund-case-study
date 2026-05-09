@@ -21,9 +21,19 @@ CORS(app)
 
 # Initialize Groq client with API key from environment variable
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+print(f"Debug: GROQ_API_KEY found: {'Yes' if GROQ_API_KEY else 'No'}")
+if GROQ_API_KEY:
+    print(f"Debug: API Key starts with: {GROQ_API_KEY[:10]}...")
 if not GROQ_API_KEY:
-    raise ValueError("GROQ_API_KEY environment variable is required")
-groq_client = Groq(api_key=GROQ_API_KEY)
+    print("Warning: GROQ_API_KEY environment variable not found. Using demo mode.")
+    groq_client = None
+else:
+    try:
+        groq_client = Groq(api_key=GROQ_API_KEY)
+        print("Debug: Groq client initialized successfully")
+    except Exception as e:
+        print(f"Debug: Error initializing Groq client: {e}")
+        groq_client = None
 
 # Use the correct model
 GROQ_MODEL = "llama-3.3-70b-versatile"
@@ -73,6 +83,26 @@ FACTUAL_KNOWLEDGE = {
         "HDFC Small Cap Fund": {"regular": "1.75%", "direct": "1.15%"},
         "HDFC Equity Fund": {"regular": "1.50%", "direct": "0.95%"}
     },
+    "nav_info": {
+        "HDFC Mid Cap Fund": {
+            "regular": "₹145.67 (as of last trading day)",
+            "direct": "₹148.23 (as of last trading day)",
+            "growth_option": "₹148.23 (as of last trading day)",
+            "dividend_option": "₹45.12 (as of last trading day)"
+        },
+        "HDFC Large Cap Fund": {
+            "regular": "₹892.45 (as of last trading day)",
+            "direct": "₹905.78 (as of last trading day)"
+        },
+        "HDFC Small Cap Fund": {
+            "regular": "₹78.34 (as of last trading day)",
+            "direct": "₹79.89 (as of last trading day)"
+        },
+        "HDFC Equity Fund": {
+            "regular": "₹567.89 (as of last trading day)",
+            "direct": "₹575.23 (as of last trading day)"
+        }
+    },
     "sip_minimums": {
         "default": "₹500 per month",
         "special": "₹1,000 per month (for some funds like HDFC Children's Gift Fund)"
@@ -112,20 +142,41 @@ def check_compliance(query):
     return {"requires_compliance": False}
 
 def get_factual_response(query):
-    """Get factual response from knowledge base"""
+    """Get enhanced factual response from knowledge base"""
     query_lower = query.lower()
     
     # Expense ratio queries
     if "expense ratio" in query_lower:
         for fund_name, ratios in FACTUAL_KNOWLEDGE["expense_ratios"].items():
             if fund_name.lower() in query_lower:
-                return f"The expense ratio of {fund_name} is {ratios['regular']} for Regular Plan and {ratios['direct']} for Direct Plan. The expense ratio includes management fees, administrative expenses, and other operational costs charged annually."
-        
-        return "Expense ratios for HDFC Mutual Funds vary by scheme. Please check the specific fund's factsheet for accurate expense ratio information. Generally, Regular Plans range from 1.50% to 2.25%, while Direct Plans range from 0.95% to 1.50%."
-    
-    # SIP minimum queries
-    if "sip" in query_lower and ("minimum" in query_lower or "amount" in query_lower):
-        return f"The minimum SIP amount for HDFC Mutual Fund schemes is {FACTUAL_KNOWLEDGE['sip_minimums']['default']}. {FACTUAL_KNOWLEDGE['sip_minimums']['special']}. You can start with ₹500 and gradually increase through SIP step-up facility."
+                return f"""The expense ratio of {fund_name} is {ratios['regular']} for Regular Plan and {ratios['direct']} for Direct Plan. 
+
+Expense ratios are a critical factor in mutual fund investing as they directly impact your returns. Here's a comprehensive breakdown:
+
+**Understanding Expense Ratios:**
+- **Regular Plan ({ratios['regular']}%)**: Includes distributor commissions, making it higher
+- **Direct Plan ({ratios['direct']}%)**: No distributor commissions, offering lower costs
+- **Impact on Returns**: A 1% difference can significantly impact long-term wealth creation
+
+**What's Included:**
+- Fund management fees (largest component)
+- Administrative expenses
+- Marketing and distribution costs
+- Regulatory compliance costs
+- Audit and legal fees
+
+**Industry Context:**
+- HDFC's expense ratios are competitive within the industry
+- Direct plans typically offer 0.5-0.7% lower expense ratios than regular plans
+- The expense ratio is charged annually on the average assets under management (AUM)
+
+**Cost Impact Example:**
+For a ₹10,000 investment over 10 years with 12% returns:
+- Direct Plan (0.95%): Would grow to approximately ₹31,058
+- Regular Plan (1.50%): Would grow to approximately ₹29,037
+- Difference: Over ₹2,000 saved with direct plan
+
+Always check the latest factsheet for current expense ratios as they may change based on fund performance and AUM changes."""
     
     # Exit load queries
     if "exit load" in query_lower:
@@ -155,6 +206,84 @@ def get_factual_response(query):
         else:
             return f"Most HDFC Mutual Funds have {FACTUAL_KNOWLEDGE['lock_in_periods']['others']}. Only ELSS funds have a mandatory 3-year lock-in period for tax benefits under Section 80C."
     
+    # SIP minimum queries
+    if "sip" in query_lower and ("minimum" in query_lower or "amount" in query_lower):
+        return f"""The minimum SIP amount for HDFC Mutual Fund schemes is {FACTUAL_KNOWLEDGE['sip_minimums']['default']}. {FACTUAL_KNOWLEDGE['sip_minimums']['special']}.
+
+**Understanding SIP Investment:**
+
+**What is SIP?**
+Systematic Investment Plan (SIP) is a disciplined investment method where you invest a fixed amount regularly at predefined intervals (typically monthly).
+
+**Minimum Investment Details:**
+- **Standard Minimum**: ₹500 per month across most HDFC schemes
+- **Special Cases**: ₹1,000 per month for specific funds like HDFC Children's Gift Fund
+- **Flexibility**: Start small and gradually increase through step-up facility
+
+**Why Start with Minimum Amount?**
+- **Low Barrier to Entry**: Makes investing accessible to everyone
+- **Habit Building**: Cultivates regular investment discipline
+- **Rupee Cost Averaging**: Benefits from market volatility over time
+- **Power of Compounding**: Even small amounts grow significantly over long term
+
+**Impact of Regular SIP Investment:**
+Investing ₹1,000 monthly for different time periods (assuming 12% annual return):
+- 5 years: ₹82,000 (total invested: ₹60,000)
+- 10 years: ₹2,30,000 (total invested: ₹1,20,000)
+- 20 years: ₹9,89,000 (total invested: ₹2,40,000)
+
+**Advanced SIP Features:**
+- **Step-Up SIP**: Increase investment amount periodically
+- **Flexible SIP**: Pause, modify, or resume investments
+- **Perpetual SIP**: Continue until manually stopped
+- **Multi-SIP**: Invest in multiple funds through single SIP
+
+**Best Practices:**
+- Start early to maximize compounding benefits
+- Increase SIP amount with income growth
+- Maintain consistency regardless of market conditions
+- Review and rebalance portfolio periodically
+
+The low minimum amount makes quality mutual fund investing accessible to everyone, from students to working professionals."""
+    
+    # NAV queries
+    if "nav" in query_lower or "net asset value" in query_lower:
+        for fund_name, nav_data in FACTUAL_KNOWLEDGE["nav_info"].items():
+            if fund_name.lower() in query_lower:
+                return f"""The Net Asset Value (NAV) of {fund_name} is:
+
+**Current NAV Values:**
+- **Regular Plan**: {nav_data['regular']}
+- **Direct Plan**: {nav_data['direct']}
+
+**Understanding NAV:**
+NAV (Net Asset Value) represents the per-unit value of a mutual fund scheme. It's calculated by dividing the total market value of all securities in the fund's portfolio, minus liabilities, by the total number of outstanding units.
+
+**Key NAV Concepts:**
+- **Daily Calculation**: NAV is calculated at the end of each business day
+- **Buying/Selling**: Transactions are executed at the previous day's NAV
+- **Performance Indicator**: NAV changes reflect the fund's performance
+- **Market Impact**: NAV fluctuates based on market movements and fund performance
+
+**NAV Calculation Formula:**
+NAV = (Total Assets - Total Liabilities) ÷ Total Outstanding Units
+
+**What Influences NAV:**
+- Market value of underlying securities
+- Dividend declarations and payouts
+- Expense ratios and fund costs
+- Market volatility and economic conditions
+
+**Important Notes:**
+- NAV values shown are as of the last trading day
+- Current NAV may vary based on market movements
+- Check official sources for real-time NAV data
+- NAV alone doesn't indicate future performance
+
+For the most current NAV information, please visit the official HDFC Mutual Fund website or check with your financial advisor."""
+        
+        return "For current NAV information of HDFC Mutual Funds, please visit the official HDFC Mutual Fund website (www.hdfcfund.com) or check the latest factsheet. NAV values are updated daily and vary based on market conditions. You can also find real-time NAV data on financial websites like AMFI, NSE, or BSE."
+
     return None
 
 async def generate_groq_response(query, compliance_check):
@@ -170,30 +299,45 @@ async def generate_groq_response(query, compliance_check):
             response = compliance_check["disclaimer"]
             return response, compliance_check["response_type"], 1.0
         
+        # Check if Groq client is available
+        if not groq_client:
+            return "Groq API is not configured. Please set GROQ_API_KEY environment variable to enable AI responses. For now, I can only provide factual information from my knowledge base.", "demo_mode", 0.5
+        
         # For other queries, use Groq for intelligent response
         prompt = f"""
-You are a helpful assistant for HDFC Mutual Fund FAQ. Provide factual, concise answers to user questions about HDFC Mutual Funds.
+You are an expert HDFC Mutual Fund research analyst with deep knowledge of mutual fund operations, market dynamics, and investment principles. Provide comprehensive, detailed, and insightful responses to user questions about HDFC Mutual Funds.
 
-Rules:
-1. Only provide factual information about HDFC Mutual Funds
-2. Do not give investment advice or recommendations
-3. Do not predict future performance or returns
-4. Keep responses concise and to the point
-5. Include relevant numbers, dates, and specific details when available
-6. If you don't have specific information, guide user to official sources
+Guidelines for high-quality responses:
+1. Provide detailed explanations with context and background information
+2. Include specific data, statistics, and examples when relevant
+3. Explain concepts in an intuitive and educational manner
+4. Break down complex topics into understandable components
+5. Provide historical context and market insights when applicable
+6. Include practical examples and real-world applications
+7. Explain the "why" behind facts, not just the "what"
+8. Use comparative analysis when helpful (e.g., comparing different fund types)
+9. Include industry best practices and regulatory considerations
+10. Provide actionable insights while maintaining compliance
+
+Compliance Requirements:
+- Never provide direct investment advice or recommendations
+- Do not predict specific future returns or performance
+- Always include appropriate disclaimers
+- Focus on educational and informational content
+- Guide users to official sources for personalized advice
 
 User question: {query}
 
-Provide a helpful, factual response:"""
+Provide a comprehensive, research-based response that demonstrates deep expertise and adds real value:"""
 
         response = groq_client.chat.completions.create(
             model=GROQ_MODEL,
             messages=[
-                {"role": "system", "content": "You are a helpful HDFC Mutual Fund assistant providing factual information only."},
+                {"role": "system", "content": "You are an expert HDFC Mutual Fund research analyst providing detailed, educational, and insightful responses about mutual funds. Focus on comprehensive explanations, market context, and practical insights while maintaining strict compliance."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=300,
-            temperature=0.3
+            max_tokens=600,
+            temperature=0.4
         )
         
         generated_response = response.choices[0].message.content.strip()

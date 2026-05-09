@@ -143,3 +143,9 @@ cache/phase2_1_results/
 # Temporary files
 temp/
 tmp/
+
+# API keys and environment files
+temp_env.py
+*_env.py
+.env.local
+.env.production
