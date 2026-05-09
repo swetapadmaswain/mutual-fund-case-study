@@ -12,14 +12,10 @@ sentence-transformers==2.2.2
 # Web Scraping and Data Processing
 beautifulsoup4==4.12.2
 requests==2.31.0
-selenium==4.16.0
-playwright==1.40.0
-lxml==4.9.3
-html5lib==1.1
 
 # Data Processing
 pandas==2.1.4
-numpy==1.24.3
+numpy==1.26.4
 python-dateutil==2.8.2
 
 # Configuration and Environment
