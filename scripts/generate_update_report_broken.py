@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to generate comprehensive update reports for data pipeline.
+Script to generate comprehensive update reports for the data pipeline.
 """
 import json
 import argparse
@@ -66,12 +66,12 @@ def generate_markdown_report(results):
 **Generated on**: {timestamp}  
 **Pipeline Version**: 2.3.0
 
-## Executive Summary
+## 📊 Executive Summary
 
 - **Status**: Initial Setup
 - **Message**: {results.get('message', 'No pipeline runs yet')}
 
-## System Status
+## 🔄 System Status
 
 This is an initial setup report. No pipeline runs have been executed yet.
 
@@ -82,7 +82,7 @@ This is an initial setup report. No pipeline runs have been executed yet.
 3. Monitor first pipeline execution
 4. Review generated reports
 
-## Configuration Checklist
+## 📋 Configuration Checklist
 
 - [ ] GitHub secrets configured
 - [ ] First data update completed
@@ -99,7 +99,7 @@ This is an initial setup report. No pipeline runs have been executed yet.
 **Generated on**: {timestamp}  
 **Pipeline Version**: 2.3.0
 
-## Executive Summary
+## 📊 Executive Summary
 
 """
     
@@ -116,15 +116,15 @@ This is an initial setup report. No pipeline runs have been executed yet.
             else:
                 overall_success = False
     
-    report += f"- **Overall Status**: {'SUCCESS' if overall_success else 'FAILED'}\n"
+    report += f"- **Overall Status**: {'✅ SUCCESS' if overall_success else '❌ FAILED'}\n"
     report += f"- **Phases Completed**: {success_count}/{total_phases}\n"
     report += f"- **Success Rate**: {(success_count/total_phases)*100:.1f}%\n\n"
     
     # Phase 1 Summary
     if "phase1" in results:
         phase1_data = results["phase1"]
-        report += "## Phase 1: Data Collection\n\n"
-        report += f"- **Status**: {'SUCCESS' if phase1_data.get('success', True) else 'FAILED'}\n"
+        report += "## 🔍 Phase 1: Data Collection\n\n"
+        report += f"- **Status**: {'✅ SUCCESS' if phase1_data.get('success', True) else '❌ FAILED'}\n"
         report += f"- **Documents Collected**: {phase1_data.get('documents_collected', 0)}\n"
         report += f"- **Funds Processed**: {len(phase1_data.get('fund_results', {}))}\n"
         report += f"- **Data Sources**: HDFC Mutual Fund, Groww\n"
@@ -138,8 +138,8 @@ This is an initial setup report. No pipeline runs have been executed yet.
     # Phase 2.1 Summary
     if "phase2_1" in results:
         phase2_1_data = results["phase2_1"]
-        report += "## Phase 2.1: Document Processing & Chunking\n\n"
-        report += f"- **Status**: {'SUCCESS' if phase2_1_data.get('success', True) else 'FAILED'}\n"
+        report += "## 📝 Phase 2.1: Document Processing & Chunking\n\n"
+        report += f"- **Status**: {'✅ SUCCESS' if phase2_1_data.get('success', True) else '❌ FAILED'}\n"
         report += f"- **Documents Processed**: {phase2_1_data.get('documents_processed', 0)}\n"
         report += f"- **Chunks Generated**: {phase2_1_data.get('chunks_generated', 0)}\n"
         
@@ -152,8 +152,8 @@ This is an initial setup report. No pipeline runs have been executed yet.
     # Phase 2.2 Summary
     if "phase2_2" in results:
         phase2_2_data = results["phase2_2"]
-        report += "## Phase 2.2: Vector Store Setup\n\n"
-        report += f"- **Status**: {'SUCCESS' if phase2_2_data.get('success', True) else 'FAILED'}\n"
+        report += "## 🔗 Phase 2.2: Vector Store Setup\n\n"
+        report += f"- **Status**: {'✅ SUCCESS' if phase2_2_data.get('success', True) else '❌ FAILED'}\n"
         
         if "step_results" in phase2_2_data:
             step_results = phase2_2_data["step_results"]
@@ -181,8 +181,8 @@ This is an initial setup report. No pipeline runs have been executed yet.
     # Phase 2.3 Summary
     if "phase2_3" in results:
         phase2_3_data = results["phase2_3"]
-        report += "## Phase 2.3: Retrieval System\n\n"
-        report += f"- **Status**: {'SUCCESS' if phase2_3_data.get('success', True) else 'FAILED'}\n"
+        report += "## 🔍 Phase 2.3: Retrieval System\n\n"
+        report += f"- **Status**: {'✅ SUCCESS' if phase2_3_data.get('success', True) else '❌ FAILED'}\n"
         
         if "step_results" in phase2_3_data:
             step_results = phase2_3_data["step_results"]
@@ -206,14 +206,14 @@ This is an initial setup report. No pipeline runs have been executed yet.
             if "performance_validation" in step_results:
                 perf_data = step_results["performance_validation"]
                 overall = perf_data.get("overall_performance", {})
-                report += f"- **Performance Targets Met**: {'YES' if overall.get('all_requirements_met') else 'NO'}\n"
+                report += f"- **Performance Targets Met**: {'✅ YES' if overall.get('all_requirements_met') else '❌ NO'}\n"
         
         report += "\n"
     
     # Performance Summary
     if "performance" in results:
         perf_data = results["performance"]
-        report += "## Performance Metrics\n\n"
+        report += "## ⚡ Performance Metrics\n\n"
         
         if "tests" in perf_data:
             tests = perf_data["tests"]
@@ -237,7 +237,7 @@ This is an initial setup report. No pipeline runs have been executed yet.
             if "targets_met" in summary:
                 report += "\n### Target Performance:\n"
                 for target_name, target_data in summary["targets_met"].items():
-                    status = "YES" if target_data["met"] else "NO"
+                    status = "✅" if target_data["met"] else "❌"
                     report += f"- **{target_name.replace('_', ' ').title()}**: {status} {target_data['actual']:.3f}s (target: {target_data['target']:.1f}s)\n"
         
         report += "\n"
@@ -245,13 +245,13 @@ This is an initial setup report. No pipeline runs have been executed yet.
     # Validation Summary
     if "validation" in results:
         validation_data = results["validation"]
-        report += "## Validation Results\n\n"
+        report += "## ✅ Validation Results\n\n"
         
         if isinstance(validation_data, list):
             for phase_result in validation_data:
                 phase_name = phase_result.get("phase", "unknown")
                 status = phase_result.get("overall_status", "unknown")
-                status_emoji = "PASS" if status == "passed" else "FAIL"
+                status_emoji = "✅" if status == "passed" else "❌"
                 
                 report += f"- **{phase_name.replace('_', ' ').title()}**: {status_emoji} {status.upper()}\n"
                 
@@ -259,17 +259,17 @@ This is an initial setup report. No pipeline runs have been executed yet.
                     for check_name, check_data in phase_result["checks"].items():
                         check_status = check_data.get("status", "unknown")
                         if check_status == "passed":
-                            check_emoji = "PASS"
+                            check_emoji = "✅"
                         elif check_status == "warning":
-                            check_emoji = "WARN"
+                            check_emoji = "⚠️"
                         else:
-                            check_emoji = "FAIL"
+                            check_emoji = "❌"
                         report += f"  - {check_name.replace('_', ' ').title()}: {check_emoji}\n"
         
         report += "\n"
     
     # Data Quality Metrics
-    report += "## Data Quality Metrics\n\n"
+    report += "## 📈 Data Quality Metrics\n\n"
     
     # Calculate some quality metrics
     total_documents = 0
@@ -299,7 +299,7 @@ This is an initial setup report. No pipeline runs have been executed yet.
     report += "\n"
     
     # Recommendations
-    report += "## Recommendations\n\n"
+    report += "## 💡 Recommendations\n\n"
     
     recommendations = []
     
@@ -328,14 +328,14 @@ This is an initial setup report. No pipeline runs have been executed yet.
     report += "\n"
     
     # Next Update Schedule
-    report += "## Next Update Schedule\n\n"
+    report += "## 📅 Next Update Schedule\n\n"
     report += "- **Automatic Updates**: Daily at 2:00 AM IST\n"
     report += "- **Manual Updates**: Available via GitHub Actions workflow\n"
     report += "- **Force Update**: Use workflow dispatch with 'force_update=true'\n"
     report += "- **Incremental Updates**: Use 'incremental' type for faster updates\n\n"
     
     # Technical Details
-    report += "## Technical Details\n\n"
+    report += "## 🔧 Technical Details\n\n"
     report += f"- **Pipeline Version**: 2.3.0\n"
     report += f"- **Python Version**: 3.9+\n"
     report += f"- **Embedding Model**: BAAI/bge-small-en (384 dimensions)\n"
@@ -385,14 +385,14 @@ def main():
     with open(output_file, 'w') as f:
         f.write(report)
     
-    print(f"Report generated: {output_file}")
+    print(f"✅ Report generated: {output_file}")
     
     # Also save latest
     latest_file = Path(f"latest_update_report.{args.format}")
     with open(latest_file, 'w') as f:
         f.write(report)
     
-    print(f"Latest report saved: {latest_file}")
+    print(f"✅ Latest report saved: {latest_file}")
 
 
 if __name__ == "__main__":
