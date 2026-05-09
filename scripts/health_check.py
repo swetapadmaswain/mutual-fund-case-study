@@ -12,7 +12,7 @@ import traceback
 
 def check_file_system_health():
     """Check file system and directory structure."""
-    print("🔍 Checking File System Health")
+    print("Checking File System Health")
     
     checks = {
         "status": "passed",
@@ -36,6 +36,17 @@ def check_file_system_health():
         ".github/workflows"
     ]
     
+    # Create missing directories
+    for dir_path in required_dirs:
+        path = Path(dir_path)
+        if not path.exists():
+            try:
+                path.mkdir(parents=True, exist_ok=True)
+                print(f"Created directory: {dir_path}")
+            except Exception as e:
+                checks["issues"].append(f"Failed to create directory {dir_path}: {e}")
+                checks["status"] = "failed"
+    
     for dir_path in required_dirs:
         path = Path(dir_path)
         if not path.exists():
@@ -43,46 +54,56 @@ def check_file_system_health():
             checks["status"] = "failed"
         else:
             # Check if directory is writable
-            if not os.access(path, os.W_OK):
-                checks["issues"].append(f"Directory not writable: {dir_path}")
+            try:
+                import os
+                if not os.access(path, os.W_OK):
+                    checks["issues"].append(f"Directory not writable: {dir_path}")
+                    checks["status"] = "warning"
+                
+                # Count files
+                file_count = len(list(path.rglob("*")))
+                checks["details"][dir_path] = {
+                    "exists": True,
+                    "file_count": file_count,
+                    "writable": os.access(path, os.W_OK)
+                }
+            except Exception as e:
+                checks["issues"].append(f"Error checking directory {dir_path}: {e}")
                 checks["status"] = "warning"
-            
-            # Count files
-            file_count = len(list(path.rglob("*")))
-            checks["details"][dir_path] = {
-                "exists": True,
-                "file_count": file_count,
-                "writable": os.access(path, os.W_OK)
-            }
     
-    # Check disk space
+    # Check disk space (skip on Windows)
     try:
-        stat = os.statvfs(".")
-        free_space = stat.f_frsize * stat.f_bavail
-        total_space = stat.f_frsize * stat.f_blocks
-        free_percent = (free_space / total_space) * 100
-        
-        checks["details"]["disk_space"] = {
-            "free_gb": round(free_space / (1024**3), 2),
-            "total_gb": round(total_space / (1024**3), 2),
-            "free_percent": round(free_percent, 2)
-        }
-        
-        if free_percent < 10:
-            checks["issues"].append(f"Low disk space: {free_percent:.1f}% free")
-            checks["status"] = "warning"
+        import platform
+        if platform.system() == 'Windows':
+            # Skip disk space check on Windows
+            checks["details"]["disk_space"] = {"skipped": True, "reason": "Windows platform"}
+        else:
+            stat = os.statvfs(".")
+            free_space = stat.f_frsize * stat.f_bavail
+            total_space = stat.f_frsize * stat.f_blocks
+            free_percent = (free_space / total_space) * 100
+            
+            checks["details"]["disk_space"] = {
+                "free_gb": round(free_space / (1024**3), 2),
+                "total_gb": round(total_space / (1024**3), 2),
+                "free_percent": round(free_percent, 2)
+            }
+            
+            if free_percent < 10:
+                checks["issues"].append(f"Low disk space: {free_percent:.1f}% free")
+                checks["status"] = "warning"
             
     except Exception as e:
         checks["issues"].append(f"Error checking disk space: {e}")
         checks["status"] = "warning"
     
-    print(f"✅ File System Health: {checks['status'].upper()}")
+    print(f"File System Health: {checks['status'].upper()}")
     return checks
 
 
 def check_data_freshness():
     """Check if data is fresh and up-to-date."""
-    print("🔍 Checking Data Freshness")
+    print("Checking Data Freshness")
     
     checks = {
         "status": "passed",
@@ -125,13 +146,13 @@ def check_data_freshness():
         checks["issues"].append(f"Error reading last update info: {e}")
         checks["status"] = "failed"
     
-    print(f"✅ Data Freshness: {checks['status'].upper()}")
+    print(f"Data Freshness: {checks['status'].upper()}")
     return checks
 
 
 def check_external_connectivity():
     """Check connectivity to external data sources."""
-    print("🔍 Checking External Connectivity")
+    print("Checking External Connectivity")
     
     checks = {
         "status": "passed",
@@ -183,13 +204,13 @@ def check_external_connectivity():
             }
             checks["status"] = "failed"
     
-    print(f"✅ External Connectivity: {checks['status'].upper()}")
+    print(f"External Connectivity: {checks['status'].upper()}")
     return checks
 
 
 def check_pipeline_integrity():
     """Check integrity of pipeline components."""
-    print("🔍 Checking Pipeline Integrity")
+    print("Checking Pipeline Integrity")
     
     checks = {
         "status": "passed",
@@ -302,13 +323,13 @@ def check_pipeline_integrity():
         checks["details"]["phase2_3"] = {"exists": False}
         checks["status"] = "failed"
     
-    print(f"✅ Pipeline Integrity: {checks['status'].upper()}")
+    print(f"Pipeline Integrity: {checks['status'].upper()}")
     return checks
 
 
 def check_performance_benchmarks():
     """Check if performance benchmarks are met."""
-    print("🔍 Checking Performance Benchmarks")
+    print("Checking Performance Benchmarks")
     
     checks = {
         "status": "passed",
@@ -370,13 +391,13 @@ def check_performance_benchmarks():
         checks["issues"].append(f"Error reading performance report: {e}")
         checks["status"] = "failed"
     
-    print(f"✅ Performance Benchmarks: {checks['status'].upper()}")
+    print(f"Performance Benchmarks: {checks['status'].upper()}")
     return checks
 
 
 def check_github_actions_status():
     """Check GitHub Actions workflow status."""
-    print("🔍 Checking GitHub Actions Status")
+    print("Checking GitHub Actions Status")
     
     checks = {
         "status": "passed",
@@ -426,13 +447,13 @@ def check_github_actions_status():
             checks["issues"].append(f"Error reading workflow {workflow_file.name}: {e}")
             checks["status"] = "warning"
     
-    print(f"✅ GitHub Actions Status: {checks['status'].upper()}")
+    print(f"GitHub Actions Status: {checks['status'].upper()}")
     return checks
 
 
 def generate_health_report():
     """Generate comprehensive health report."""
-    print("🏥 Generating System Health Report")
+    print("Generating System Health Report")
     print("=" * 60)
     
     # Run all health checks
@@ -463,7 +484,7 @@ def generate_health_report():
                 health_checks["overall_status"] = "degraded"
                 
         except Exception as e:
-            print(f"❌ Health check {check_name} failed: {e}")
+            print(f"Health check {check_name} failed: {e}")
             health_checks["checks"][check_name] = {
                 "status": "failed",
                 "issues": [f"Health check error: {e}"],
@@ -488,17 +509,17 @@ def generate_health_report():
     
     # Print summary
     print("\n" + "=" * 60)
-    print(f"🏥 Overall System Health: {health_checks['overall_status'].upper()}")
+    print(f"Overall System Health: {health_checks['overall_status'].upper()}")
     
     for check_name, check_result in health_checks["checks"].items():
-        status_emoji = "✅" if check_result["status"] == "passed" else "⚠️" if check_result["status"] == "warning" else "❌"
+        status_emoji = "PASS" if check_result["status"] == "passed" else "WARN" if check_result["status"] == "warning" else "FAIL"
         print(f"{status_emoji} {check_name.replace('_', ' ').title()}: {check_result['status'].upper()}")
         
         if check_result["issues"]:
             for issue in check_result["issues"]:
                 print(f"   - {issue}")
     
-    print(f"\n📄 Health report saved: {health_file}")
+    print(f"Health report saved: {health_file}")
     
     return health_checks
 
@@ -510,20 +531,20 @@ def main():
         
         # Exit with appropriate code
         if health_report["overall_status"] == "unhealthy":
-            print("❌ System health check FAILED")
+            print("System health check FAILED")
             sys.exit(1)
         elif health_report["overall_status"] == "degraded":
-            print("⚠️ System health check completed with WARNINGS")
+            print("System health check completed with WARNINGS")
             sys.exit(0)
         else:
-            print("✅ System health check PASSED")
+            print("System health check PASSED")
             sys.exit(0)
             
     except KeyboardInterrupt:
-        print("\n❌ Health check interrupted by user")
+        print("Health check interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error during health check: {e}")
+        print(f"Unexpected error during health check: {e}")
         print(traceback.format_exc())
         sys.exit(1)
 
