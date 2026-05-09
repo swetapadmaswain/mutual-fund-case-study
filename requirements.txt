@@ -1,6 +1,5 @@
 # Minimal Streamlit Requirements - Python 3.14.4 Compatible
-streamlit==1.40.0
+streamlit>=1.42.0
 groq==0.4.1
 requests==2.31.0
 python-dotenv==1.0.0
-imghdr==0.1.0
