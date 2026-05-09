@@ -1,7 +1,6 @@
 # Core RAG Framework
 langchain==0.1.0
 langchain-community==0.0.12
-langchain-openai==0.0.2
 
 # Vector Storage
 chromadb==0.4.18
