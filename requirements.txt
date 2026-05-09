@@ -1,4 +1,4 @@
-# Minimal Streamlit Requirements
+# Minimal Streamlit Requirements - Python 3.14.4 Compatible
 streamlit==1.12.0
 groq==0.4.1
 requests==2.31.0
