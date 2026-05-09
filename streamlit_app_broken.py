@@ -147,196 +147,159 @@ def get_factual_response(query):
 
 **Cost Impact Example:**
 For a ₹10,000 investment over 10 years with 12% returns:
-- Regular Plan: ₹31,058 (approx.)
-- Direct Plan: ₹32,473 (approx.)
-- **Savings**: ₹1,415 (4.5% more wealth)
-
-**Recommendation**: Consider Direct Plan for long-term investments to maximize returns."""
+- Direct Plan: Would grow to approximately ₹31,058
+- Regular Plan: Would grow to approximately ₹29,037
+- Difference: Over ₹2,000 saved with direct plan"""
     
     # NAV queries
     if "nav" in query_lower or "net asset value" in query_lower:
-        for fund_name, nav_info in FACTUAL_KNOWLEDGE["nav_info"].items():
+        for fund_name, nav_data in FACTUAL_KNOWLEDGE["nav_info"].items():
             if fund_name.lower() in query_lower:
-                return f"""The current NAV of {fund_name} is:
-- **Regular Plan**: {nav_info['regular']}
-- **Direct Plan**: {nav_info['direct']}
+                return f"""The Net Asset Value (NAV) of {fund_name} is:
+
+**Current NAV Values:**
+- **Regular Plan**: {nav_data['regular']}
+- **Direct Plan**: {nav_data['direct']}
 
 **Understanding NAV:**
-- **NAV (Net Asset Value)**: Price per unit of the mutual fund
-- **Regular vs Direct**: Direct plans typically have slightly higher NAV due to lower expenses
-- **Trading**: NAV is updated at the end of each business day
-- **Investment**: Units are allotted based on the NAV of the day you invest
+NAV represents the per-unit value of a mutual fund scheme. It's calculated by dividing the total market value of all securities in the fund's portfolio, minus liabilities, by the total number of outstanding units.
 
-**Important Note**: NAV values shown are for illustration purposes. Please check the official HDFC Mutual Fund website or your investment platform for current NAV values."""
+**Key Concepts:**
+- **Daily Calculation**: NAV is calculated at the end of each business day
+- **Performance Indicator**: NAV changes reflect the fund's performance
+- **Market Impact**: NAV fluctuates based on market movements"""
     
     # SIP queries
-    if "sip" in query_lower or "systematic investment plan" in query_lower:
-        if "minimum" in query_lower or "start" in query_lower:
-            return f"""**SIP (Systematic Investment Plan) Information:**
+    if "sip" in query_lower and ("minimum" in query_lower or "amount" in query_lower):
+        return f"""The minimum SIP amount for HDFC Mutual Fund schemes is {FACTUAL_KNOWLEDGE['sip_minimums']['default']}. {FACTUAL_KNOWLEDGE['sip_minimums']['special']}.
 
-**Minimum SIP Amounts:**
-- **Default**: {FACTUAL_KNOWLEDGE["sip_minimums"]["default"]}
-- **Special Funds**: {FACTUAL_KNOWLEDGE["sip_minimums"]["special"]}
+**Understanding SIP Investment:**
 
-**How to Start SIP in HDFC Mutual Fund:**
-
-1. **Online Process**:
-   - Visit HDFC Mutual Fund website
-   - Complete KYC (if not done)
-   - Select fund and SIP amount
-   - Choose SIP date (1st-28th of month)
-   - Set up auto-debit mandate
-
-2. **Through Distributor**:
-   - Contact HDFC Mutual Fund distributor
-   - Fill SIP application form
-   - Provide bank details for auto-debit
-   - Submit KYC documents
-
-3. **Through Investment Apps**:
-   - Use platforms like Groww, Paytm Money, etc.
-   - Search for HDFC Mutual Fund
-   - Follow app-specific SIP setup process
+**What is SIP?**
+Systematic Investment Plan (SIP) is a disciplined investment method where you invest a fixed amount at regular intervals.
 
 **Benefits of SIP:**
-- Rupee cost averaging
-- Power of compounding
-- Disciplined investing
-- Low minimum investment
-- Flexible tenure options"""
+- **Rupee Cost Averaging**: Reduces impact of market volatility
+- **Discipline**: Encourages regular investing habit
+- **Low Barrier**: Start with as little as ₹500 per month
+- **Power of Compounding**: Small amounts grow significantly over time
+
+**Impact of Regular SIP:**
+Investing ₹1,000 monthly for different periods (assuming 12% annual return):
+- 5 years: ₹82,000 (total invested: ₹60,000)
+- 10 years: ₹2,30,000 (total invested: ₹1,20,000)
+- 20 years: ₹9,89,000 (total invested: ₹2,40,000)"""
     
     # Exit load queries
-    if "exit load" in query_lower or "exit charges" in query_lower:
-        return f"""**Exit Load Information for HDFC Mutual Funds:**
-
-**Exit Loads by Fund Type:**
-- **Equity Funds**: {FACTUAL_KNOWLEDGE["exit_loads"]["equity"]}
-- **ELSS Funds**: {FACTUAL_KNOWLEDGE["exit_loads"]["elss"]}
-- **Debt Funds**: {FACTUAL_KNOWLEDGE["exit_loads"]["debt"]}
-
-**Understanding Exit Loads:**
-- **Exit Load**: Fee charged when you redeem units
-- **Purpose**: Discourages very short-term investments
-- **Calculation**: Usually on the amount being redeemed
-- **Waivers**: Often waived after certain holding period
-
-**Example Calculation:**
-For a ₹10,000 redemption from an equity fund within 1 year:
-- Exit Load: 1% = ₹100
-- Amount after load: ₹9,900
-
-**Strategy**: Consider holding period when planning redemptions to minimize exit loads."""
+    if "exit load" in query_lower:
+        if "equity" in query_lower:
+            return f"Exit load for HDFC Equity Funds: {FACTUAL_KNOWLEDGE['exit_loads']['equity']}. The exit load is calculated on the applicable NAV for the redemption day."
+        elif "elss" in query_lower:
+            return f"Exit load for HDFC ELSS Funds: {FACTUAL_KNOWLEDGE['exit_loads']['elss']}. No charges for redemption after the lock-in period."
     
     # Lock-in period queries
     if "lock in" in query_lower or "lock-in" in query_lower:
-        return f"""**Lock-in Period Information:**
-
-**Lock-in Periods by Fund Type:**
-- **ELSS Funds**: {FACTUAL_KNOWLEDGE["lock_in_periods"]["ELSS"]}
-- **Other Funds**: {FACTUAL_KNOWLEDGE["lock_in_periods"]["others"]}
-
-**ELSS (Equity Linked Savings Scheme) Details:**
-- **Tax Benefit**: Section 80C deduction up to ₹1.5 lakh
-- **Lock-in**: 3 years from date of investment
-- **After Lock-in**: Can redeem anytime (subject to exit loads)
-- **Minimum Investment**: Usually ₹500 per month via SIP
-
-**Important Points:**
-- Lock-in applies to each investment installment
-- Partial withdrawals not allowed during lock-in
-- Premature withdrawal may have tax implications
-- Consider investment horizon before choosing ELSS
-
-**Alternative**: If you need liquidity, consider non-ELSS equity funds."""
+        if "elss" in query_lower:
+            return f"HDFC ELSS Funds have {FACTUAL_KNOWLEDGE['lock_in_periods']['ELSS']}. During this period, you cannot redeem or withdraw your investment. After 3 years, you can redeem units or continue holding."
+        else:
+            return f"Most HDFC Mutual Funds have {FACTUAL_KNOWLEDGE['lock_in_periods']['others']}. Only ELSS funds have a mandatory 3-year lock-in period for tax benefits under Section 80C."
     
     return None
-
-def generate_ai_response(query):
-    """Generate AI response using Groq API"""
-    client = get_groq_client()
-    if not client:
-        return "I'm currently in demo mode. Please configure the GROQ_API_KEY to enable AI responses.", "demo_mode"
-    
-    try:
-        system_prompt = """You are a helpful mutual fund assistant specializing in HDFC Mutual Funds. 
-        You provide factual information about mutual funds, explain concepts clearly, and help users understand investment options.
-        
-        IMPORTANT RULES:
-        1. NEVER provide specific investment advice or recommendations
-        2. NEVER predict future performance or returns
-        3. NEVER suggest which funds to buy or sell
-        4. ALWAYS include a disclaimer that you're not providing investment advice
-        5. Focus on educational information and factual data
-        6. If asked for advice, redirect to consulting a qualified financial advisor
-        
-        You can discuss:
-        - What mutual funds are and how they work
-        - Different types of HDFC Mutual Funds
-        - Expense ratios, NAV, SIP processes
-        - General investment concepts
-        - How to start investing
-        - Risk factors (general, not specific advice)
-        
-        Always maintain a helpful, educational tone while being compliant."""
-        
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": query}
-        ]
-        
-        response = client.chat.completions.create(
-            model="llama3-8b-8192",
-            messages=messages,
-            max_tokens=1000,
-            temperature=0.7
-        )
-        
-        ai_response = response.choices[0].message.content
-        
-        # Add compliance disclaimer
-        if any(word in query.lower() for word in ['should i', 'recommend', 'suggest', 'advice', 'invest', 'buy', 'sell']):
-            ai_response += "\n\n**Important Disclaimer**: I'm not providing investment advice. Please consult a qualified financial advisor for personalized investment guidance."
-        
-        return ai_response, "groq_generated"
-        
-    except Exception as e:
-        return f"I apologize, but I encountered an error while generating a response. Please try again later. Error: {str(e)}", "error"
-
-def validate_input(query):
-    """Validate user input"""
-    if not query or not query.strip():
-        return False
-    if len(query) > 1000:
-        return False
-    return True
 
 def check_compliance(query):
     """Check if query requires compliance handling"""
     query_lower = query.lower()
-    advice_keywords = ['should i', 'recommend', 'suggest', 'advice', 'which fund', 'invest in', 'buy', 'sell']
-    return any(keyword in query_lower for keyword in advice_keywords)
+    
+    compliance_patterns = [
+        "should i invest", "recommend.*fund", "best.*fund", 
+        "good.*investment", "which.*fund.*better", "advice.*investment",
+        "guaranteed.*return", "sure.*profit", "no.*risk",
+        "future.*return", "predict.*performance", "will.*perform"
+    ]
+    
+    for pattern in compliance_patterns:
+        if pattern in query_lower:
+            return True
+    
+    return False
 
-# Initialize session state
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
-if 'user_id' not in st.session_state:
-    st.session_state.user_id = str(uuid.uuid4())
+def generate_ai_response(query):
+    """Generate AI response using Groq"""
+    client = get_groq_client()
+    if not client:
+        return "Groq API is not configured. Please set GROQ_API_KEY environment variable to enable AI responses. For now, I can only provide factual information from my knowledge base.", "demo_mode"
+    
+    try:
+        prompt = f"""
+You are an expert HDFC Mutual Fund research analyst with deep knowledge of mutual fund operations, market dynamics, and investment principles. Provide comprehensive, detailed, and insightful responses to user questions about HDFC Mutual Funds.
+
+Guidelines for high-quality responses:
+1. Provide detailed explanations with context and background information
+2. Include specific data, statistics, and examples when relevant
+3. Explain concepts in an intuitive and educational manner
+4. Break down complex topics into understandable components
+5. Provide historical context and market insights when applicable
+6. Include practical examples and real-world applications
+7. Explain the "why" behind facts, not just the "what"
+8. Use comparative analysis when helpful
+
+Compliance Requirements:
+- Never provide direct investment advice or recommendations
+- Do not predict specific future returns or performance
+- Always include appropriate disclaimers
+- Focus on educational and informational content
+
+User question: {query}
+
+Provide a comprehensive, research-based response that demonstrates deep expertise and adds real value:"""
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are an expert HDFC Mutual Fund research analyst providing detailed, educational, and insightful responses about mutual funds. Focus on comprehensive explanations, market context, and practical insights while maintaining strict compliance."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=600,
+            temperature=0.4
+        )
+        
+        return response.choices[0].message.content.strip(), "groq_generated"
+        
+    except Exception as e:
+        return f"Error connecting to AI service: {str(e)}. Please try again later or visit www.hdfcfund.com for detailed information.", "error"
+
+def validate_input(text):
+    """Validate user input for security"""
+    if not text or len(text.strip()) == 0:
+        return False
+    if len(text) > 1000:  # Reasonable limit
+        return False
+    return True
 
 # Main application
 def main():
-    st.title("Mutual Fund AI Assistant")
-    st.markdown("Ask questions about HDFC Mutual Funds, SIP, NAV, and investment concepts.")
+    # Header
+    st.title("🤖 Mutual Fund AI Assistant")
+    st.markdown("Powered by Groq AI - Ask questions about HDFC Mutual Funds")
     
-    # Status indicator
+    # API Status
     client = get_groq_client()
     if client:
-        st.markdown('<span class="status-badge status-connected">Connected</span>', unsafe_allow_html=True)
+        st.markdown('<span class="status-badge status-connected">✅ Groq API Connected</span>', unsafe_allow_html=True)
     else:
-        st.markdown('<span class="status-badge status-error">Demo Mode</span>', unsafe_allow_html=True)
+        st.markdown('<span class="status-badge status-error">❌ Groq API Not Connected</span>', unsafe_allow_html=True)
+        st.warning("Please set GROQ_API_KEY environment variable to enable AI responses.")
+    
+    # Initialize session state
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
+    
+    if 'user_id' not in st.session_state:
+        st.session_state.user_id = str(uuid.uuid4())
     
     # Sidebar with examples
     with st.sidebar:
-        st.header("Example Questions")
+        st.header("💡 Example Questions")
         examples = [
             "What is the expense ratio of HDFC Mid Cap Fund?",
             "What is the NAV of HDFC Mid Cap Fund?",
@@ -357,14 +320,14 @@ def main():
         st.divider()
         
         # Clear chat button
-        if st.button("Clear Chat", type="secondary"):
+        if st.button("🗑️ Clear Chat", type="secondary"):
             st.session_state.messages = []
             st.rerun()
         
         st.divider()
         
         # Statistics
-        st.subheader("Chat Statistics")
+        st.subheader("📊 Chat Statistics")
         st.metric("Total Messages", len(st.session_state.messages))
         st.metric("User ID", st.session_state.user_id[:8] + "...")
     
@@ -377,13 +340,13 @@ def main():
             if message["role"] == "assistant" and "metadata" in message:
                 metadata = message["metadata"]
                 if metadata["type"] == "factual":
-                    st.caption("Factual Knowledge Base")
+                    st.caption("📊 Factual Knowledge Base")
                 elif metadata["type"] == "groq_generated":
-                    st.caption("AI Generated via Groq")
+                    st.caption("🤖 AI Generated via Groq")
                 elif metadata["type"] == "demo_mode":
-                    st.caption("Demo Mode")
+                    st.caption("⚠️ Demo Mode")
                 elif metadata["type"] == "error":
-                    st.caption("Error")
+                    st.caption("❌ Error")
     
     # Chat input
     if prompt := st.chat_input("Ask about HDFC Mutual Funds..."):
@@ -414,15 +377,15 @@ def main():
                     
                     # Add metadata
                     if response_type == "factual":
-                        st.caption("Factual Knowledge Base")
+                        st.caption("📊 Factual Knowledge Base")
                     elif response_type == "groq_generated":
-                        st.caption("AI Generated via Groq")
+                        st.caption("🤖 AI Generated via Groq")
                     elif response_type == "demo_mode":
-                        st.caption("Demo Mode")
+                        st.caption("⚠️ Demo Mode")
                     elif response_type == "error":
-                        st.caption("Error")
+                        st.caption("❌ Error")
                     elif response_type == "compliance_refusal":
-                        st.caption("Compliance Refusal")
+                        st.caption("🛡️ Compliance Refusal")
             
             # Add assistant message to session state
             st.session_state.messages.append({
