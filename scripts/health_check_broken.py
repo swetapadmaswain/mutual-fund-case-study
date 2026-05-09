@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to perform system health checks for mutual fund data pipeline.
+Script to perform system health checks for the mutual fund data pipeline.
 """
 import json
 import sys
@@ -8,8 +8,6 @@ import requests
 from pathlib import Path
 from datetime import datetime, timedelta
 import traceback
-import os
-import platform
 
 
 def check_file_system_health():
@@ -57,6 +55,7 @@ def check_file_system_health():
         else:
             # Check if directory is writable
             try:
+                import os
                 if not os.access(path, os.W_OK):
                     checks["issues"].append(f"Directory not writable: {dir_path}")
                     checks["status"] = "warning"
@@ -74,6 +73,7 @@ def check_file_system_health():
     
     # Check disk space (skip on Windows)
     try:
+        import platform
         if platform.system() == 'Windows':
             # Skip disk space check on Windows
             checks["details"]["disk_space"] = {"skipped": True, "reason": "Windows platform"}
@@ -262,20 +262,9 @@ def check_pipeline_integrity():
             }
             
             if not phase2_1_data.get("success", False):
-                checks["issues"].append("Phase 2.1 chunking was not successful")
-                checks["status"] = "warning"
-                
-        except Exception as e:
-            checks["issues"].append(f"Error reading Phase 2.1 results: {e}")
-            checks["details"]["phase2_1"] = {"exists": True, "error": str(e)}
-            checks["status"] = "failed"
-    else:
-        checks["details"]["phase2_1"] = {"exists": False, "note": "No pipeline runs yet"}
-    
     # Check Phase 2.2 results
     phase2_2_file = Path("cache/phase2_2_results/phase2_2_results.json")
     if phase2_2_file.exists():
-        pipeline_runs += 1
         try:
             with open(phase2_2_file, 'r') as f:
                 phase2_2_data = json.load(f)
@@ -295,12 +284,13 @@ def check_pipeline_integrity():
             checks["details"]["phase2_2"] = {"exists": True, "error": str(e)}
             checks["status"] = "failed"
     else:
-        checks["details"]["phase2_2"] = {"exists": False, "note": "No pipeline runs yet"}
+        checks["issues"].append("Phase 2.2 results file not found")
+        checks["details"]["phase2_2"] = {"exists": False}
+        checks["status"] = "failed"
     
     # Check Phase 2.3 results
     phase2_3_file = Path("cache/phase2_3_results/phase2_3_results.json")
     if phase2_3_file.exists():
-        pipeline_runs += 1
         try:
             with open(phase2_3_file, 'r') as f:
                 phase2_3_data = json.load(f)
@@ -320,13 +310,9 @@ def check_pipeline_integrity():
             checks["details"]["phase2_3"] = {"exists": True, "error": str(e)}
             checks["status"] = "failed"
     else:
-        checks["details"]["phase2_3"] = {"exists": False, "note": "No pipeline runs yet"}
-    
-    # If no pipeline runs yet, mark as warning instead of failed
-    if pipeline_runs == 0:
-        checks["status"] = "warning"
-        checks["issues"] = ["No pipeline runs yet - this is normal for initial setup"]
-        checks["details"]["pipeline_status"] = "initial_setup"
+        checks["issues"].append("Phase 2.3 results file not found")
+        checks["details"]["phase2_3"] = {"exists": False}
+        checks["status"] = "failed"
     
     print(f"Pipeline Integrity: {checks['status'].upper()}")
     return checks
@@ -346,7 +332,7 @@ def check_performance_benchmarks():
     performance_file = Path("performance_reports/latest_performance_report.json")
     
     if not performance_file.exists():
-        checks["issues"].append("No performance report found - this is normal for initial setup")
+        checks["issues"].append("No performance report found")
         checks["status"] = "warning"
         return checks
     
@@ -425,18 +411,18 @@ def check_github_actions_status():
         checks["issues"].append("No GitHub workflow files found")
         checks["status"] = "warning"
     
-    # Check for scheduler workflow
-    scheduler_file = workflow_dir / "scheduler.yml"
-    if not scheduler_file.exists():
-        checks["issues"].append("Scheduler workflow not found")
+    # Check for data update pipeline
+    data_pipeline_file = workflow_dir / "data-update-pipeline.yml"
+    if not data_pipeline_file.exists():
+        checks["issues"].append("Data update pipeline workflow not found")
         checks["status"] = "failed"
     else:
-        checks["details"]["scheduler_workflow"] = True
+        checks["details"]["data_pipeline_workflow"] = True
     
     # Check workflow syntax (basic)
     for workflow_file in workflow_files:
         try:
-            with open(workflow_file, 'r', encoding='utf-8') as f:
+            with open(workflow_file, 'r') as f:
                 content = f.read()
             
             # Basic syntax checks
@@ -555,4 +541,5 @@ def main():
 
 
 if __name__ == "__main__":
+    import os
     main()
