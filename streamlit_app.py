@@ -84,8 +84,17 @@ st.markdown("""
 # Initialize Groq client
 @st.cache_resource
 def get_groq_client():
+    # Try to get API key from multiple sources
     api_key = os.getenv('GROQ_API_KEY')
-    if api_key:
+    
+    # Also try to get from st.secrets (Streamlit Cloud)
+    if not api_key:
+        try:
+            api_key = st.secrets.get('GROQ_API_KEY')
+        except:
+            pass
+    
+    if api_key and api_key != "your_groq_api_key_here":
         return Groq(api_key=api_key)
     return None
 
@@ -285,7 +294,7 @@ def generate_ai_response(query):
         ]
         
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             messages=messages,
             max_tokens=1000,
             temperature=0.7

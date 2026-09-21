@@ -64,9 +64,9 @@ This project implements a compliant, facts-only FAQ assistant that:
 ### Prerequisites
 - Python 3.9 or higher
 - Git
-- Internet connection for data collection
+- Internet connection
 
-### Setup
+### Local Setup
 
 1. **Clone repository**
 ```bash
@@ -74,29 +74,55 @@ git clone https://github.com/swetapadmaswain/mutual-fund-case-study.git
 cd mutual-fund-case-study
 ```
 
-2. **Create virtual environment**
+2. **Run setup script**
+```bash
+python setup_local.py
+```
+
+3. **Configure API Key (Optional)**
+Edit `.streamlit/secrets.toml` and add your Groq API key:
+```toml
+GROQ_API_KEY = "your_groq_api_key_here"
+```
+Get a free API key from: https://console.groq.com/
+
+4. **Run the application**
+```bash
+streamlit run streamlit_app.py
+```
+
+The app will be available at http://localhost:8501
+
+### Demo Mode
+Without an API key, the app runs in demo mode using a built-in factual knowledge base. It can answer questions about HDFC Mutual Funds including expense ratios, NAV, SIP processes, and more.
+
+### Data Collection Pipeline (Optional)
+
+For advanced users who want to run the full data collection pipeline:
+
+1. **Create virtual environment**
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. **Install dependencies**
+2. **Install full dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Set up environment**
+3. **Set up environment**
 ```bash
 cp .env.example .env
 # Edit .env file with your settings
 ```
 
-5. **Run Phase 1 data collection**
+4. **Run Phase 1 data collection**
 ```bash
 python src/data_collection/main.py
 ```
 
-6. **Run Phase 2.1 document processing**
+5. **Run Phase 2.1 document processing**
 ```bash
 python src/rag/chunking/main.py
 ```
@@ -413,23 +439,46 @@ For issues and questions:
 3. Check logs in `logs/app.log`
 4. Create an issue with detailed information
 
+## 🌐 Production Deployment
+
+### Streamlit Cloud (Recommended)
+1. Go to [Streamlit Cloud](https://share.streamlit.io/)
+2. Connect your GitHub account
+3. Select repository: `swetapadmaswain/mutual-fund-case-study`
+4. Configure secrets in Streamlit Cloud dashboard:
+   - `GROQ_API_KEY` - Your Groq API key
+5. Click "Deploy"
+
+**Expected URL:** `https://mutual-fund-ai-assistant.streamlit.app`
+
+### Detailed Deployment Guide
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for:
+- Local development setup
+- Production deployment options
+- Environment configuration
+- Troubleshooting
+- Security best practices
+
 ## 🔄 Next Steps
 
 ### Current Status
-- ✅ Phase 1: Foundation and Data Collection - Complete
-- ✅ Phase 2.1: Document Processing and Chunking - Complete
-- 🔄 Phase 2.2: Vector Store Setup - Next
+- ✅ **Streamlit Application**: Fully functional and production-ready
+- ✅ **Local Development**: Tested and working
+- ✅ **Demo Mode**: Functional without API key
+- ✅ **Phase 1**: Foundation and Data Collection - Complete
+- ✅ **Phase 2.1**: Document Processing and Chunking - Complete
+- 🔄 **Production Deployment**: Ready to deploy
+- ⏳ Phase 2.2: Vector Store Setup - Planned (for enhanced RAG)
 - ⏳ Phase 2.3: Retrieval System - Planned
-- ⏳ Phase 2.4: LLM Integration - Planned
-- ⏳ Phase 2.5: Metadata Management - Planned
-- ⏳ Phase 2.6: Performance Optimization - Planned
+- ⏳ Phase 2.4: Enhanced LLM Integration - Planned
 
-### After Phase 2.1
-1. Review chunk quality and distribution
-2. Validate metadata completeness
-3. Proceed to Phase 2.2 (Vector Store Setup)
-4. Set up embedding model integration
-5. Configure ChromaDB collections
+### Deployment Readiness
+1. ✅ Application tested locally
+2. ✅ Production configuration files created
+3. ✅ Deployment documentation completed
+4. ✅ Security and environment setup
+5. 🔄 Deploy to Streamlit Cloud
+6. ⏳ Configure production monitoring
 
 ---
 
